@@ -1,0 +1,28 @@
+services:
+  portfolio:
+    container_name: portfolio
+    # user: "${UID}:${GID}"
+    networks:
+      - portfolio
+    # command: ["air -c .air.toml"]
+    # command: sh -c "air -c .air.toml"
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: development
+      args:
+        - TZ=${PORTFOLIO_TZ}
+        - UID=${UID}
+        - GID=${GID}
+    environment:
+      DEBUG: ${DEBUG}
+      GO_ENV: ${GO_ENV}
+      LOG_LEVEL: ${PORTFOLIO_LOG_LEVEL}
+      ENV_FILE: ".env.dev"
+      TZ: ${PORTFOLIO_TZ}
+    volumes:
+      - .:/portfolio
+    ports:
+      - "5173:5173"
+networks:
+  portfolio:

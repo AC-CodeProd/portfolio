@@ -1,0 +1,10 @@
+node_modules
+ui/node_modules
+core/tmp
+.git
+.gitignore
+*.log
+*.md
+Dockerfile
+docker-compose.yml
+air.toml
