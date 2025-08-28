@@ -4,6 +4,12 @@ set -euo pipefail
 SERVER_DIR="/portfolio/server"
 UI_DIR="/portfolio/ui"
 
+export PNPM_HOME=/portfolio/ui/.pnpm
+export PNPM_STORE_PATH=/portfolio/ui/.pnpm-store
+export NPM_CONFIG_USERCONFIG=/portfolio/ui/.npmrc
+export PATH="$PNPM_HOME:$PATH"
+export CI=1
+
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
 }
@@ -24,9 +30,7 @@ cd "$SERVER_DIR" || { log "Failed to enter $SERVER_DIR"; exit 1; }
 log "🔧 Starting the Go development server..."
 (
   cd "$SERVER_DIR"
-  air -c .air.toml 2>&1 | while IFS= read -r line; do
-    echo "[SERVER] $line"
-  done
+  air -c .air.toml 2>&1 | awk '{ cmd="date +%F\\ %T"; cmd | getline ts; close(cmd); printf("[%s] [SERVER] %s\n", ts, $0); fflush(); }'
 ) &
 SERVER_PID=$!
 
@@ -38,18 +42,16 @@ log "📦 Installing UI dependencies..."
 (
   pnpm install --silent
   if [[ $? -eq 0 ]]; then
-    echo "[UI] Dependencies successfully installed"
+    log "[UI] Dependencies successfully installed"
   else
-    echo "[UI] Error installing dependencies"
+    log "[UI] Error installing dependencies"
     exit 1
   fi
 ) &
 
 log "🎨 Start the UI development server..."
 (
-  pnpm run dev 2>&1 | while IFS= read -r line; do
-    echo "[UI] $line"
-  done
+  pnpm run dev -- --host 2>&1 | awk '{ cmd="date +%F\\ %T"; cmd | getline ts; close(cmd); printf("[%s] [UI] %s\n", ts, $0); fflush(); }'
 ) &
 UI_PID=$!
 
