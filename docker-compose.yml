@@ -22,7 +22,15 @@ services:
       TZ: ${PORTFOLIO_TZ}
     volumes:
       - .:/portfolio
+      - ui_node_modules:/portfolio/ui/node_modules
+      - ui_pnpm_store:/portfolio/ui/.pnpm-store
+      - go_build:/home/app/.cache/go-build
     ports:
       - "5173:5173"
 networks:
   portfolio:
+
+volumes:
+  ui_node_modules:
+  ui_pnpm_store:
+  go_build:
