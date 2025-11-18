@@ -86,5 +86,5 @@ WORKDIR /portfolio
 RUN chown -R "${USER}:${GROUP}" /portfolio
 USER ${UID}:${GID}
 
-EXPOSE 8080 5173
+EXPOSE 3000 5173
 CMD ["./start-dev.sh"]

@@ -1,0 +1,62 @@
+name: Go Checks (server)
+
+on:
+  push:
+    paths:
+      - 'server/**'
+      - '.github/workflows/go-checks.yml'
+  pull_request:
+    paths:
+      - 'server/**'
+      - '.github/workflows/go-checks.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: go-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: server    # run everything inside the Go module
+    env:
+      GOFLAGS: -buildvcs=false
+      GOWORK: off
+      COVER_MIN: ${{ vars.GO_COVER_MIN != '' && vars.GO_COVER_MIN || '80.0' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go from go.mod
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: server/go.mod
+          cache: true
+          cache-dependency-path: server/go.sum
+
+      - name: Cache Go build cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/go-build
+          key: ${{ runner.os }}-gobuild-${{ hashFiles('server/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-gobuild-
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Static analysis (go vet)
+        run: go vet ./...
+
+      - name: Lint (golangci-lint)
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.4
+          working-directory: server
+          args: --timeout=5m ./...
