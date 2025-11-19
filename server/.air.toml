@@ -6,11 +6,11 @@ tmp_dir = "tmp"
 
 [build]
 # Commande de build : build du projet principal
-cmd = "go build -o ./tmp/main ./main.go"
+cmd = "go build -o ./tmp/main ./cmd/api/main.go"
 # Fichier binaire généré
 bin = "tmp/main"
 # Extensions à surveiller
-include_ext = ["go", "tpl", "tmpl", "html", "json", "yaml", "yml"]
+include_ext = ["go", "tpl", "tmpl", "html", "json", "yaml", "yml", "css", "js"]
 # Dossiers à ignorer (ajoute /app/web ou autres dossiers front si besoin)
 exclude_dir = [
   "logs",
@@ -24,7 +24,13 @@ exclude_dir = [
   ".git"
 ]
 # Fichiers à ignorer
-exclude_file = []
+exclude_file = [
+  "docs/docs.go",
+  "docs/private_swagger.json",
+  "docs/private_swagger.yaml",
+  "docs/swagger.json",
+  "docs/swagger.yaml",
+]
 # Exclure les fichiers de test (optionnel)
 exclude_regex = ["_test.go"]
 exclude_unchanged = true
@@ -34,7 +40,12 @@ delay = 500 # ms, pour un reload plus réactif en dev
 stop_on_error = true
 send_interrupt = false
 kill_delay = 300
-
+pre_cmd = [
+  "swag init -g cmd/api/main.go --overridesFile docs/.swaggo --markdownFiles docs/markdown/ --instanceName private --outputTypes json --quiet",
+  "swag init -g cmd/api/main.go --overridesFile docs/.swaggo --markdownFiles docs/markdown/ --exclude api/http/handlers/admin --outputTypes json --quiet",
+  "GOFLAGS='-buildvcs=false' golangci-lint run ./...",
+  "go vet ./..."
+]
 [log]
 time = true
 

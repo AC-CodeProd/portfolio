@@ -11,6 +11,7 @@
 !/.gitignore
 !/.dockerignore
 !*.gitkeep
+!.github/workflows/*.yml
 !*.go
 !*.vue
 !*.ts
@@ -24,9 +25,18 @@
 !go.sum
 !Makefile
 !README.md
+!LICENSE
 !Dockerfile
 !docker-compose.yml
 !start-dev.sh
 # ...even if they are in subdirectories
 !*/
 ui/node_modules/*
+!server/migrations/*.sql
+server/*.html
+server/docs/docs.go
+!server/docs/*.md
+!server/docs/*.css
+!server/docs/*.js
+!server/docs/.swaggo
+!server/docs/markdown/*.md

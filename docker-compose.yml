@@ -4,8 +4,8 @@ services:
     # user: "${UID}:${GID}"
     networks:
       - portfolio
-    # command: ["air -c .air.toml"]
-    # command: sh -c "air -c .air.toml"
+    # command: ["./start-dev.sh"]
+    # command: sh -c "./start-dev.sh"
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -14,11 +14,14 @@ services:
         - TZ=${PORTFOLIO_TZ}
         - UID=${UID}
         - GID=${GID}
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     environment:
       DEBUG: ${DEBUG}
       GO_ENV: ${GO_ENV}
       LOG_LEVEL: ${PORTFOLIO_LOG_LEVEL}
-      ENV_FILE: ".env.dev"
+      PORTFOLIO_ENV_FILE: "/portfolio/.env.dev"
       TZ: ${PORTFOLIO_TZ}
     volumes:
       - .:/portfolio
@@ -27,6 +30,7 @@ services:
       - go_build:/home/app/.cache/go-build
     ports:
       - "5173:5173"
+      - "3000:3000"
 networks:
   portfolio:
 

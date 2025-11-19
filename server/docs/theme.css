@@ -1,0 +1,288 @@
+:root {
+  --toggle-theme-background: #ffffff;
+  --toggle-theme-border: #e2e8f0;
+  --toggle-theme-text: #0f172a;
+  --toggle-theme-hover: #f8fafc;
+
+  --body-bg: #f9fafb;
+  --body-text: #1e293b;
+
+  /* ==================== COLORS ==================== */
+  /* primary */
+  --colors-primary-main: #32329f;
+  --colors-primary-light: #8e8edc;
+  --colors-primary-dark: #0d0d2b;
+  --colors-primary-contrastText: #ffffff;
+
+  /* success */
+  --colors-success-main: #00aa13;
+  --colors-success-light: #44ff59;
+  --colors-success-dark: #001102;
+  --colors-success-contrastText: #000000;
+
+  /* warning */
+  --colors-warning-main: #d4ad03;
+  --colors-warning-light: #fde373;
+  --colors-warning-dark: #3d3201;
+  --colors-warning-contrastText: #ffffff;
+
+  /* error */
+  --colors-error-main: #e53935;
+  --colors-error-light: #f6bebd;
+  --colors-error-dark: #72110f;
+  --colors-error-contrastText: #000000;
+
+  /* text */
+  --colors-text-primary: #333333;
+  --colors-text-secondary: #808080;
+
+  /* border */
+  --colors-border-dark: rgba(0, 0, 0, 0.1);
+  --colors-border-light: #ffffff;
+
+  /* responses */
+  --colors-responses-success-color: #00aa13;
+  --colors-responses-success-background-color: rgba(0, 170, 19, 0.1);
+  --colors-responses-error-color: #e53935;
+  --colors-responses-error-background-color: rgba(229, 57, 53, 0.1);
+  --colors-responses-redirect-color: #ffa500;
+  --colors-responses-redirect-background-color: rgba(255, 165, 0, 0.1);
+  --colors-responses-info-color: #87ceeb;
+  --colors-responses-info-background-color: rgba(135, 206, 235, 0.1);
+
+  /* HTTP methods */
+  --colors-http-get: #6bbd5b;
+  --colors-http-post: #248fb2;
+  --colors-http-put: #9b708b;
+  --colors-http-options: #d3ca12;
+  --colors-http-patch: #e09d43;
+  --colors-http-delete: #e27a7a;
+  --colors-http-basic: #999999;
+  --colors-http-link: #31bbb6;
+  --colors-http-head: #c167e4;
+
+  --colors-gray-50:#fafafa;
+  --colors-gray-100:#f5f5f5;
+
+  /* ==================== SCHEMA ==================== */
+  --schema-lines-color: #a4a4c6;
+  --schema-type-name-color: #808080;
+  --schema-type-title-color: #808080;
+  --schema-require-label-color: #e53935;
+  --schema-nested-background: #fafafa;
+  --schema-arrow-color: #808080;
+
+  /* ==================== TYPOGRAPHY ==================== */
+  --typography-code-color: #e53935;
+  --typography-code-background-color: rgba(38, 50, 56, 0.05);
+
+  --typography-links-color: #32329f;
+  --typography-links-visited: #32329f;
+  --typography-links-hover: #6868cf;
+
+  /* ==================== SIDEBAR ==================== */
+  --sidebar-background-color: #fafafa;
+  --sidebar-text-color: #333333;
+  --sidebar-arrow-color: #333333;
+
+  /* ==================== RIGHT PANEL ==================== */
+  --right-panel-background-color: #263238;
+  --right-panel-text-color: #ffffff;
+  --right-panel-tags-background-color: #ffffff;
+  --right-panel-servers-overlay-background-color: #fafafa;
+  --right-panel-servers-url-background-color: #e5e7eb;
+
+  /* ==================== CODE BLOCK ==================== */
+  --code-block-background-color: #11171a;
+}
+
+html[theme="dark"] {
+  --toggle-theme-background: #1e293b;
+  --toggle-theme-border: #374151;
+  --toggle-theme-text: #f1f5f9;
+  --toggle-theme-hover: #334155;
+
+  --body-bg: #121212;
+  --body-text: #d1d5db;
+
+  /* ==================== COLORS ==================== */
+  /* primary */
+  --colors-primary-main: #8e8edc;
+  --colors-primary-light: #b3b3f1;
+  --colors-primary-dark: #2a2a6b;
+  --colors-primary-contrastText: #0b0f12;
+
+  /* success */
+  --colors-success-main: #00aa13;
+  --colors-success-light: #44ff59;
+  --colors-success-dark: #001102;
+  --colors-success-contrastText: #0b0f12;
+
+  /* warning */
+  --colors-warning-main: #d4ad03;
+  --colors-warning-light: #fde373;
+  --colors-warning-dark: #3d3201;
+  --colors-warning-contrastText: #0b0f12;
+
+  /* error */
+  --colors-error-main: #e53935;
+  --colors-error-light: #f6bebd;
+  --colors-error-dark: #72110f;
+  --colors-error-contrastText: #0b0f12;
+
+  /* text */
+  --colors-text-primary: #e5e7eb;
+  --colors-text-secondary: #a1a1aa;
+
+  /* border */
+  --colors-border-light: #27272a;
+  --colors-border-dark: #a1a1aa;
+
+  /* responses */
+  --colors-responses-success-color: #22c55e;
+  --colors-responses-success-background-color: rgba(34, 197, 94, 0.15);
+  --colors-responses-error-color: #ef4444;
+  --colors-responses-error-background-color: rgba(239, 68, 68, 0.15);
+  --colors-responses-redirect-color: #f59e0b;
+  --colors-responses-redirect-background-color: rgba(245, 158, 11, 0.15);
+  --colors-responses-info-color: #38bdf8;
+  --colors-responses-info-background-color: rgba(56, 189, 248, 0.15);
+
+  /* HTTP methods */
+  --colors-http-get: #22c55e;
+  --colors-http-post: #3b82f6;
+  --colors-http-put: #ec4899;
+  --colors-http-options: #eab308;
+  --colors-http-patch: #f97316;
+  --colors-http-delete: #ef4444;
+  --colors-http-basic: #71717a;
+  --colors-http-link: #06b6d4;
+  --colors-http-head: #d946ef;
+
+  --colors-gray-50: #fafafa;
+  --colors-gray-100: #121212;
+
+  /* ==================== SCHEMA ==================== */
+  --schema-lines-color: #3f3f46;
+  --schema-type-name-color: #a1a1aa;
+  --schema-type-title-color: #a1a1aa;
+  --schema-require-label-color: #ef4444;
+  --schema-nested-background: #0f1115;
+  --schema-arrow-color: #a1a1aa;
+
+  /* ==================== TYPOGRAPHY ==================== */
+  --typography-code-color: #ef4444;
+  --typography-code-background-color: rgba(255, 255, 255, 0.06);
+
+  --typography-links-color: #8e8edc;
+  --typography-links-visited: #a9a9ee;
+  --typography-links-hover: #b3b3f1;
+
+  /* ==================== SIDEBAR ==================== */
+  --sidebar-background-color: #0b0f12;
+  --sidebar-text-color: #e5e7eb;
+  --sidebar-arrow-color: #a1a1aa;
+
+  /* ==================== RIGHT PANEL ==================== */
+  --right-panel-background-color: #0b0f12;
+  --right-panel-text-color: #e5e7eb;
+  --right-panel-tags-background-color: #3f3f46;
+  --right-panel-servers-overlay-background-color: #121212;
+  --right-panel-servers-url-background-color: #11171a;
+
+  /* ==================== CODE BLOCK ==================== */
+  --code-block-background-color: #11171a;
+
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+body {
+  background-color: var(--body-bg);
+  color: var(--body-text);
+  margin: 0;
+}
+
+#redoc-container {
+  height: 100%
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--toggle-theme-border) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--toggle-theme-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--toggle-theme-text);
+  opacity: 0.7;
+}
+
+.theme-toggle-wrap {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+#toggle-theme {
+  pointer-events: auto;
+  padding: 9px 9px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 18px;
+  border: 2px solid var(--toggle-theme-border);
+  background: var(--toggle-theme-background);
+  color: var(--toggle-theme-text);
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+#toggle-theme:hover {
+  background: var(--toggle-theme-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+#toggle-theme:active {
+  transform: translateY(0);
+}
+
+#toggle-theme:focus-visible {
+  outline: 2px solid var(--toggle-theme-text);
+  outline-offset: 2px;
+}
+
+.react-tabs__tab--selected {
+  border: none !important;
+  background-color: var(--right-panel-tags-background-color) !important;
+}
+
+h5 > span {
+  color: var(--body-text) !important;
+}
+table tr td div {
+  background-color: var(--body-bg) !important;
+}
