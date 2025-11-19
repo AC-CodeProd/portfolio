@@ -14,9 +14,6 @@ services:
         - TZ=${PORTFOLIO_TZ}
         - UID=${UID}
         - GID=${GID}
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
     environment:
       DEBUG: ${DEBUG}
       GO_ENV: ${GO_ENV}
