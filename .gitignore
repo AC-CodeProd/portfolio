@@ -38,3 +38,5 @@ server/docs/docs.go
 !server/docs/*.md
 !server/docs/*.css
 !server/docs/*.js
+!server/docs/.swaggo
+!server/docs/markdown/*.md
