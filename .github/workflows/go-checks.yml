@@ -51,6 +51,29 @@ jobs:
       - name: Download dependencies
         run: go mod download
 
+      - name: Install swag
+        run: go install github.com/swaggo/swag/cmd/swag@latest
+
+      - name: Generate Swagger (private)
+        run: |
+          swag init \
+            -g cmd/api/main.go \
+            --overridesFile docs/.swaggo \
+            --markdownFiles docs/markdown/ \
+            --instanceName private \
+            --outputTypes json \
+            --quiet
+
+      - name: Generate Swagger (public)
+        run: |
+          swag init \
+            -g cmd/api/main.go \
+            --overridesFile docs/.swaggo \
+            --markdownFiles docs/markdown/ \
+            --exclude api/http/handlers/admin \
+            --outputTypes json \
+            --quiet
+
       - name: Static analysis (go vet)
         run: go vet ./...
 
