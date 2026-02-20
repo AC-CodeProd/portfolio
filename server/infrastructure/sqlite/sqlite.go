@@ -172,6 +172,16 @@ func applyMigrations(db *sql.DB, logger *logger.Logger) error {
 			continue
 		}
 
+		var count int
+		err := db.QueryRow("SELECT COUNT(*) FROM schema_migrations WHERE schema_migration_filename = ?", migration.Name).Scan(&count)
+		if err != nil {
+			return fmt.Errorf("failed to check migration status for %s: %w", migration.Name, err)
+		}
+		if count > 0 {
+			logger.Printf("Migration %s already applied, skipping\n", migration.Name)
+			continue
+		}
+
 		fmt.Println(string(migration.Content))
 
 		if _, err := db.Exec(string(migration.Content)); err != nil {

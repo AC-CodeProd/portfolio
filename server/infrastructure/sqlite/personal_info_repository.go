@@ -26,7 +26,7 @@ func (repo *personalInfoRepository) Get(ctx context.Context) (*entities.Personal
 	var info entities.PersonalInfo
 	var dateOfBirth time.Time
 
-	query := `SELECT personal_info_id, user_id, personal_info_first_name, personal_info_last_name, personal_info_professional_title, personal_info_bio, personal_info_location, personal_info_resume_url, personal_info_website_url, personal_info_linkedin_url, personal_info_github_url, personal_info_x_url, personal_info_date_of_birth, personal_info_phone_number, personal_info_interests, personal_info_profile_picture, personal_info_created_at, personal_info_updated_at FROM personal_infos LIMIT 1`
+	query := `SELECT personal_info_id, user_id, personal_info_first_name, personal_info_last_name, personal_info_professional_title, personal_info_intro, personal_info_about_me, personal_info_location, personal_info_resume_url, personal_info_website_url, personal_info_linkedin_url, personal_info_github_url, personal_info_x_url, personal_info_date_of_birth, personal_info_phone_number, personal_info_interests, personal_info_profile_picture, personal_info_created_at, personal_info_updated_at FROM personal_infos LIMIT 1`
 	row := repo.db.QueryRowContext(ctx, query)
 
 	err := row.Scan(
@@ -35,7 +35,8 @@ func (repo *personalInfoRepository) Get(ctx context.Context) (*entities.Personal
 		&info.FirstName,
 		&info.LastName,
 		&info.ProfessionalTitle,
-		&info.Bio,
+		&info.Intro,
+		&info.AboutMe,
 		&info.Location,
 		&info.ResumeURL,
 		&info.WebsiteURL,
@@ -67,7 +68,7 @@ func (repo *personalInfoRepository) GetByID(ctx context.Context, personalInfoID 
 	var personalInfo entities.PersonalInfo
 
 	var dateOfBirth time.Time
-	query := `SELECT personal_info_id, user_id, personal_info_first_name, personal_info_last_name, personal_info_professional_title, personal_info_bio, personal_info_location, personal_info_resume_url, personal_info_website_url, personal_info_linkedin_url, personal_info_github_url, personal_info_x_url, personal_info_date_of_birth, personal_info_phone_number, personal_info_interests, personal_info_profile_picture, personal_info_created_at, personal_info_updated_at FROM personal_infos WHERE personal_info_id = ?`
+	query := `SELECT personal_info_id, user_id, personal_info_first_name, personal_info_last_name, personal_info_professional_title, personal_info_intro, personal_info_about_me, personal_info_location, personal_info_resume_url, personal_info_website_url, personal_info_linkedin_url, personal_info_github_url, personal_info_x_url, personal_info_date_of_birth, personal_info_phone_number, personal_info_interests, personal_info_profile_picture, personal_info_created_at, personal_info_updated_at FROM personal_infos WHERE personal_info_id = ?`
 
 	row := repo.db.QueryRowContext(ctx, query, personalInfoID)
 	err := row.Scan(
@@ -76,7 +77,8 @@ func (repo *personalInfoRepository) GetByID(ctx context.Context, personalInfoID 
 		&personalInfo.FirstName,
 		&personalInfo.LastName,
 		&personalInfo.ProfessionalTitle,
-		&personalInfo.Bio,
+		&personalInfo.Intro,
+		&personalInfo.AboutMe,
 		&personalInfo.Location,
 		&personalInfo.ResumeURL,
 		&personalInfo.WebsiteURL,
@@ -105,8 +107,8 @@ func (repo *personalInfoRepository) GetByID(ctx context.Context, personalInfoID 
 }
 
 func (repo *personalInfoRepository) Create(ctx context.Context, personalInfo *entities.PersonalInfo) (*entities.PersonalInfo, error) {
-	query := `INSERT INTO personal_infos (user_id, personal_info_first_name, personal_info_last_name, personal_info_professional_title, personal_info_bio, personal_info_location, personal_info_resume_url, personal_info_website_url, personal_info_linkedin_url, personal_info_github_url, personal_info_x_url, personal_info_date_of_birth, personal_info_phone_number, personal_info_interests, personal_info_profile_picture) 
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+	query := `INSERT INTO personal_infos (user_id, personal_info_first_name, personal_info_last_name, personal_info_professional_title, personal_info_intro, personal_info_about_me, personal_info_location, personal_info_resume_url, personal_info_website_url, personal_info_linkedin_url, personal_info_github_url, personal_info_x_url, personal_info_date_of_birth, personal_info_phone_number, personal_info_interests, personal_info_profile_picture) 
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
 
 	var dateOfBirth *time.Time
 	if personalInfo.DateOfBirth != nil {
@@ -119,7 +121,8 @@ func (repo *personalInfoRepository) Create(ctx context.Context, personalInfo *en
 		personalInfo.FirstName,
 		personalInfo.LastName,
 		personalInfo.ProfessionalTitle,
-		personalInfo.Bio,
+		personalInfo.Intro,
+		personalInfo.AboutMe,
 		personalInfo.Location,
 		personalInfo.ResumeURL,
 		personalInfo.WebsiteURL,
@@ -144,7 +147,8 @@ func (repo *personalInfoRepository) Update(ctx context.Context, personalInfoId i
 		personal_info_first_name = ?, 
 		personal_info_last_name = ?, 
 		personal_info_professional_title = ?, 
-		personal_info_bio = ?, 
+		personal_info_intro = ?, 
+		personal_info_about_me = ?, 
 		personal_info_location = ?, 
 		personal_info_resume_url = ?, 
 		personal_info_website_url = ?, 
@@ -168,7 +172,8 @@ func (repo *personalInfoRepository) Update(ctx context.Context, personalInfoId i
 		personalInfo.FirstName,
 		personalInfo.LastName,
 		personalInfo.ProfessionalTitle,
-		personalInfo.Bio,
+		personalInfo.Intro,
+		personalInfo.AboutMe,
 		personalInfo.Location,
 		personalInfo.ResumeURL,
 		personalInfo.WebsiteURL,
@@ -205,7 +210,8 @@ func (repo *personalInfoRepository) Patch(ctx context.Context, personalInfoId in
 		{"personal_info_first_name", personalInfo.FirstName, personalInfo.FirstName != ""},
 		{"personal_info_last_name", personalInfo.LastName, personalInfo.LastName != ""},
 		{"personal_info_professional_title", personalInfo.ProfessionalTitle, personalInfo.ProfessionalTitle != ""},
-		{"personal_info_bio", personalInfo.Bio, personalInfo.Bio != ""},
+		{"personal_info_intro", personalInfo.Intro, personalInfo.Intro != ""},
+		{"personal_info_about_me", personalInfo.AboutMe, personalInfo.AboutMe != nil},
 		{"personal_info_location", personalInfo.Location, personalInfo.Location != ""},
 		{"personal_info_resume_url", personalInfo.ResumeURL, personalInfo.ResumeURL != ""},
 		{"personal_info_website_url", personalInfo.WebsiteURL, personalInfo.WebsiteURL != ""},
@@ -253,7 +259,7 @@ func (repo *personalInfoRepository) Delete(ctx context.Context, personalInfoId i
 }
 
 func (repo *personalInfoRepository) GetByUserID(ctx context.Context, userID int) (*entities.PersonalInfo, error) {
-	query := `SELECT personal_info_id, user_id, personal_info_first_name, personal_info_last_name, personal_info_professional_title, personal_info_bio, personal_info_location, personal_info_resume_url, personal_info_website_url, personal_info_linkedin_url, personal_info_github_url, personal_info_x_url, personal_info_date_of_birth, personal_info_phone_number, personal_info_interests, personal_info_profile_picture, personal_info_created_at, personal_info_updated_at FROM personal_infos WHERE user_id = ?`
+	query := `SELECT personal_info_id, user_id, personal_info_first_name, personal_info_last_name, personal_info_professional_title, personal_info_intro, personal_info_about_me, personal_info_location, personal_info_resume_url, personal_info_website_url, personal_info_linkedin_url, personal_info_github_url, personal_info_x_url, personal_info_date_of_birth, personal_info_phone_number, personal_info_interests, personal_info_profile_picture, personal_info_created_at, personal_info_updated_at FROM personal_infos WHERE user_id = ?`
 	row := repo.db.QueryRowContext(ctx, query, userID)
 
 	info := &entities.PersonalInfo{}
@@ -265,7 +271,8 @@ func (repo *personalInfoRepository) GetByUserID(ctx context.Context, userID int)
 		&info.FirstName,
 		&info.LastName,
 		&info.ProfessionalTitle,
-		&info.Bio,
+		&info.Intro,
+		&info.AboutMe,
 		&info.Location,
 		&info.ResumeURL,
 		&info.WebsiteURL,

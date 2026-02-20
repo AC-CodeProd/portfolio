@@ -11,7 +11,8 @@ type CreatePersonalInfoRequest struct {
 	FirstName         string `json:"first_name"`
 	LastName          string `json:"last_name"`
 	ProfessionalTitle string `json:"professional_title"`
-	Bio               string `json:"bio"`
+	Intro             string `json:"intro"`
+	AboutMe           string `json:"about_me"`
 	Location          string `json:"location"`
 	ResumeURL         string `json:"resume_url"`
 	WebsiteURL        string `json:"website_url"`
@@ -31,7 +32,8 @@ type PatchPersonalInfoRequest struct {
 	FirstName         *string `json:"first_name,omitempty"`
 	LastName          *string `json:"last_name,omitempty"`
 	ProfessionalTitle *string `json:"professional_title,omitempty"`
-	Bio               *string `json:"bio,omitempty"`
+	Intro             *string `json:"intro,omitempty"`
+	AboutMe           *string `json:"about_me,omitempty"`
 	Location          *string `json:"location,omitempty"`
 	ResumeURL         *string `json:"resume_url,omitempty"`
 	WebsiteURL        *string `json:"website_url,omitempty"`
@@ -59,7 +61,8 @@ func FromPersonalInfoRequestToEntity(userID int, req *CreatePersonalInfoRequest)
 		FirstName:         req.FirstName,
 		LastName:          req.LastName,
 		ProfessionalTitle: req.ProfessionalTitle,
-		Bio:               req.Bio,
+		Intro:             req.Intro,
+		AboutMe:           getStringPointer(req.AboutMe),
 		Location:          req.Location,
 		ResumeURL:         req.ResumeURL,
 		WebsiteURL:        req.WebsiteURL,
@@ -88,7 +91,8 @@ func FromUpdatePersonalInfoRequestToEntity(userID int, req *UpdatePersonalInfoRe
 		FirstName:         req.FirstName,
 		LastName:          req.LastName,
 		ProfessionalTitle: req.ProfessionalTitle,
-		Bio:               req.Bio,
+		Intro:             req.Intro,
+		AboutMe:           getStringPointer(req.AboutMe),
 		Location:          req.Location,
 		ResumeURL:         req.ResumeURL,
 		WebsiteURL:        req.WebsiteURL,
@@ -117,7 +121,8 @@ func FromPatchPersonalInfoRequestToEntity(userID int, req *PatchPersonalInfoRequ
 		FirstName:         getStringValue(req.FirstName),
 		LastName:          getStringValue(req.LastName),
 		ProfessionalTitle: getStringValue(req.ProfessionalTitle),
-		Bio:               getStringValue(req.Bio),
+		Intro:             getStringValue(req.Intro),
+		AboutMe:           req.AboutMe,
 		Location:          getStringValue(req.Location),
 		ResumeURL:         getStringValue(req.ResumeURL),
 		WebsiteURL:        getStringValue(req.WebsiteURL),
@@ -136,4 +141,11 @@ func getStringValue(ptr *string) string {
 		return *ptr
 	}
 	return ""
+}
+
+func getStringPointer(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
 }

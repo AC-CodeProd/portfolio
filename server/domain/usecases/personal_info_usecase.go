@@ -30,7 +30,7 @@ func validatePersonalInfoRequest(request *dto.CreatePersonalInfoRequest) []*doma
 	validator.Required("first_name", request.FirstName).
 		Required("last_name", request.LastName).
 		Required("professional_title", request.ProfessionalTitle).
-		Required("bio", request.Bio).
+		Required("intro", request.Intro).
 		Required("location", request.Location).
 		Required("phone_number", request.PhoneNumber).
 		Required("interests", request.Interests).
