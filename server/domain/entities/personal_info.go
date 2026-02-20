@@ -12,7 +12,8 @@ type PersonalInfo struct {
 	FirstName         string
 	LastName          string
 	ProfessionalTitle string
-	Bio               string
+	Intro             string
+	AboutMe           *string
 	Location          string
 	ResumeURL         string
 	WebsiteURL        string

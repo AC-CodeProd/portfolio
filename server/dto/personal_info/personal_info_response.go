@@ -11,7 +11,8 @@ type PersonalInfo struct {
 	FirstName         string `json:"first_name"`
 	LastName          string `json:"last_name"`
 	ProfessionalTitle string `json:"professional_title"`
-	Description       string `json:"description"`
+	Intro             string `json:"intro"`
+	AboutMe           string `json:"about_me"`
 	Email             string `json:"email"`
 	Phone             string `json:"phone"`
 	LinkedIn          string `json:"linkedin"`
@@ -44,7 +45,8 @@ func FromPersonalInfoEntityToResponse(user *entities.User, personalInfo *entitie
 			FirstName:         personalInfo.FirstName,
 			LastName:          personalInfo.LastName,
 			ProfessionalTitle: personalInfo.ProfessionalTitle,
-			Description:       personalInfo.Bio,
+			Intro:             personalInfo.Intro,
+			AboutMe:           getStringValueFromPointer(personalInfo.AboutMe),
 			Email:             user.Email,
 			Phone:             personalInfo.PhoneNumber,
 			LinkedIn:          personalInfo.LinkedinURL,
@@ -65,4 +67,11 @@ func FromPersonalInfoEntityToResponse(user *entities.User, personalInfo *entitie
 
 func NewPersonalInfoResponse(user *entities.User, personalInfo *entities.PersonalInfo, meta *shared.Meta) *PersonalInfoResponse {
 	return FromPersonalInfoEntityToResponse(user, personalInfo, meta)
+}
+
+func getStringValueFromPointer(ptr *string) string {
+	if ptr != nil {
+		return *ptr
+	}
+	return ""
 }
