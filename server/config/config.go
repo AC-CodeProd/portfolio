@@ -162,11 +162,12 @@ func saveDefaultConfig(path string, config *Config) {
 		panic(fmt.Sprintf("Error writing default config file: %v", err))
 	}
 
-	fmt.Printf("Default config file created at: %s\n", path)
+	log.Printf("Default config file created at: %s\n", path)
 }
 
 func overrideWithEnv(config *Config) {
 	if envFile := os.Getenv("PORTFOLIO_ENV_FILE"); envFile != "" {
+		log.Printf("Loading environment variables from: %s\n", envFile)
 		if err := godotenv.Load(envFile); err != nil {
 			log.Fatalf("Failed to load environment file: %v", err)
 		}

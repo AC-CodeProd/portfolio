@@ -1,11 +1,13 @@
 services:
   portfolio:
+    env_file:
+      - path: .env # default
+        required: true
+      - path: .env.override # optional override
+        required: false
     container_name: portfolio
-    # user: "${UID}:${GID}"
     networks:
       - portfolio
-    # command: ["./start-dev.sh"]
-    # command: sh -c "./start-dev.sh"
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -17,8 +19,6 @@ services:
     environment:
       DEBUG: ${DEBUG}
       GO_ENV: ${GO_ENV}
-      LOG_LEVEL: ${PORTFOLIO_LOG_LEVEL}
-      PORTFOLIO_ENV_FILE: "/portfolio/.env.dev"
       TZ: ${PORTFOLIO_TZ}
     volumes:
       - .:/portfolio

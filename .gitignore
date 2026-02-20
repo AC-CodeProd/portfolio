@@ -40,3 +40,4 @@ server/docs/docs.go
 !server/docs/*.js
 !server/docs/.swaggo
 !server/docs/markdown/*.md
+!.env
