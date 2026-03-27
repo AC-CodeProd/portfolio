@@ -7,6 +7,7 @@ import (
 	"portfolio/api/http/routes"
 	"portfolio/api/http/utils"
 	"portfolio/domain"
+	"portfolio/domain/entities"
 	"portfolio/domain/usecases"
 	experienceDto "portfolio/dto/experience"
 	"portfolio/logger"
@@ -38,6 +39,11 @@ func NewExperienceHandler(settingUseCase *usecases.SettingUseCase, experienceUse
 			Name:    "PostAdminExperienceHandler",
 			Pattern: "POST /experiences",
 			Handler: experienceHandler.CreateExperience,
+		},
+		{
+			Name:    "PostBulkAdminExperienceHandler",
+			Pattern: "POST /experiences/bulk",
+			Handler: experienceHandler.CreateBulkExperiences,
 		},
 		{
 			Name:    "GetAdminExperienceHandler",
@@ -214,6 +220,83 @@ func (eh *experienceHandler) CreateExperience(w http.ResponseWriter, r *http.Req
 		"request_id": utils.GetRequestIDFromContext(ctx),
 	})
 	utils.WriteSuccessResponse(w, http.StatusCreated, response)
+}
+
+// CreateBulkExperiences
+//
+//	@Summary		Create multiple experiences in bulk
+//	@Description	Create multiple experiences for the authenticated admin user
+//	@Tags			Admin Experiences
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.CreateBulkExperiencesRequest	true	"Bulk experiences creation request"
+//	@Success		201		{object}	shared.APIResponse{data=dto.ExperienceListResponse}
+//	@Failure		400		{object}	shared.APIResponse{errors=[]shared.APIError}
+//	@Failure		401		{object}	shared.APIResponse{errors=[]shared.APIError}
+//	@Failure		500		{object}	shared.APIResponse{errors=[]shared.APIError}
+//	@Router			/admin/experiences/bulk [post]
+//	@Security		BearerAuth
+func (eh *experienceHandler) CreateBulkExperiences(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	var request experienceDto.CreateBulkExperiencesRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		eh.logger.Error("Failed to decode bulk experiences request body: %v", err)
+		utils.WriteErrorResponse(w, domain.NewValidationError("Invalid request body", "body", &err))
+		return
+	}
+
+	if err := request.Validate(); err != nil {
+		utils.WriteErrorResponse(w, domain.NewValidationError("request", err.Error(), nil))
+		return
+	}
+
+	userID, ok := eh.getUserIDFromContext(w, r)
+	if !ok {
+		return
+	}
+
+	experienceEntities, err := request.ToEntities(userID)
+	if err != nil {
+		eh.logger.Error("Failed to convert bulk request to entities: %v", err)
+		utils.WriteErrorResponse(w, domain.NewValidationError("Invalid experiences data", "experiences", &err))
+		return
+	}
+
+	var createdExperiences []*entities.Experience
+	var errs []error
+
+	for i, experienceEntity := range experienceEntities {
+		createdExperience, err := eh.experienceUseCase.CreateExperience(ctx, experienceEntity)
+		if err != nil {
+			eh.logger.Error("Failed to create experience at index %d (name: %s): %v", i, experienceEntity.JobTitle, err)
+			errs = append(errs, err)
+		} else {
+			createdExperiences = append(createdExperiences, createdExperience)
+		}
+	}
+
+	statusCode := http.StatusCreated
+	if len(experienceEntities) == len(errs) {
+		eh.logger.Error("All experiences failed to create, returning errors")
+		utils.WriteErrorResponse(w, errs...)
+		return
+	} else if len(errs) > 0 {
+		statusCode = http.StatusMultiStatus
+	}
+
+	response := experienceDto.FromExperiencesEntityForBulkToResponse(createdExperiences, &shared.Meta{
+		"timestamp":  time.Now().Format(time.RFC3339),
+		"request_id": utils.GetRequestIDFromContext(ctx),
+	})
+
+	domainErrors := make([]*shared.APIError, len(errs))
+	for i, err := range errs {
+		if domainErr, ok := domain.AsDomainError(err); ok {
+			domainErrors[i] = utils.DomainErrorToAPIError(domainErr)
+		}
+	}
+	response.Errors = domainErrors
+	utils.WriteSuccessResponse(w, statusCode, response)
 }
 
 // UpdateExperience

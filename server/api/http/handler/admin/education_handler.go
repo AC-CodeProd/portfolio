@@ -6,6 +6,7 @@ import (
 	"portfolio/api/http/routes"
 	"portfolio/api/http/utils"
 	"portfolio/domain"
+	"portfolio/domain/entities"
 	"portfolio/domain/usecases"
 	educationDto "portfolio/dto/education"
 	"portfolio/logger"
@@ -37,6 +38,11 @@ func NewEducationHandler(settingUseCase *usecases.SettingUseCase, educationUseCa
 			Name:    "PostAdminEducationHandler",
 			Pattern: "POST /educations",
 			Handler: educationHandler.CreateEducation,
+		},
+		{
+			Name:    "PostBulkAdminEducationHandler",
+			Pattern: "POST /educations/bulk",
+			Handler: educationHandler.CreateBulkEducations,
 		},
 		{
 			Name:    "GetAdminEducationHandler",
@@ -205,6 +211,83 @@ func (eh *educationHandler) CreateEducation(w http.ResponseWriter, r *http.Reque
 			"request_id": utils.GetRequestIDFromContext(ctx),
 		})
 	utils.WriteSuccessResponse(w, http.StatusCreated, response)
+}
+
+// CreateBulkEducations
+//
+//	@Summary		Create multiple educations in bulk
+//	@Description	Create multiple educations for the authenticated admin user
+//	@Tags			Admin Educations
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.CreateBulkEducationsRequest	true	"Bulk educations creation request"
+//	@Success		201		{object}	shared.APIResponse{data=dto.EducationListResponse}
+//	@Failure		400		{object}	shared.APIResponse{errors=[]shared.APIError}
+//	@Failure		401		{object}	shared.APIResponse{errors=[]shared.APIError}
+//	@Failure		500		{object}	shared.APIResponse{errors=[]shared.APIError}
+//	@Router			/admin/educations/bulk [post]
+//	@Security		BearerAuth
+func (eh *educationHandler) CreateBulkEducations(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	var request educationDto.CreateBulkEducationsRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		eh.logger.Error("Failed to decode bulk educations request body: %v", err)
+		utils.WriteErrorResponse(w, domain.NewValidationError("Invalid request body", "body", &err))
+		return
+	}
+
+	if err := request.Validate(); err != nil {
+		utils.WriteErrorResponse(w, domain.NewValidationError("request", err.Error(), nil))
+		return
+	}
+
+	userID, ok := eh.getUserIDFromContext(w, r)
+	if !ok {
+		return
+	}
+
+	educationEntities, err := request.ToEntities(userID)
+	if err != nil {
+		eh.logger.Error("Failed to convert bulk request to entities: %v", err)
+		utils.WriteErrorResponse(w, domain.NewValidationError("Invalid educations data", "educations", &err))
+		return
+	}
+
+	var createdEducations []*entities.Education
+	var errs []error
+
+	for i, educationEntity := range educationEntities {
+		createdEducation, err := eh.educationUseCase.CreateEducation(ctx, educationEntity)
+		if err != nil {
+			eh.logger.Error("Failed to create education at index %d (degree: %s): %v", i, educationEntity.Degree, err)
+			errs = append(errs, err)
+		} else {
+			createdEducations = append(createdEducations, createdEducation)
+		}
+	}
+
+	statusCode := http.StatusCreated
+	if len(educationEntities) == len(errs) {
+		eh.logger.Error("All educations failed to create, returning errors")
+		utils.WriteErrorResponse(w, errs...)
+		return
+	} else if len(errs) > 0 {
+		statusCode = http.StatusMultiStatus
+	}
+
+	response := educationDto.FromEducationsEntityForBulkToResponse(createdEducations, &shared.Meta{
+		"timestamp":  time.Now().Format(time.RFC3339),
+		"request_id": utils.GetRequestIDFromContext(ctx),
+	})
+
+	domainErrors := make([]*shared.APIError, len(errs))
+	for i, err := range errs {
+		if domainErr, ok := domain.AsDomainError(err); ok {
+			domainErrors[i] = utils.DomainErrorToAPIError(domainErr)
+		}
+	}
+	response.Errors = domainErrors
+	utils.WriteSuccessResponse(w, statusCode, response)
 }
 
 // UpdateEducation

@@ -23,8 +23,9 @@ type Project struct {
 
 // @Description Response for a list of projects
 type ProjectListResponse struct {
-	Projects []*Project   `json:"projects"`
-	Meta     *shared.Meta `json:"meta"`
+	Projects []*Project         `json:"projects"`
+	Meta     *shared.Meta       `json:"meta"`
+	Errors   []*shared.APIError `json:"errors,omitempty"`
 } //@name ProjectListResponse
 
 // @Description Response for a project
@@ -78,6 +79,34 @@ func FromProjectsEntityToResponse(projects []*entities.Project, meta *shared.Met
 		}
 
 		projectResponses = append(projectResponses, _project)
+	}
+
+	return &ProjectListResponse{
+		Projects: projectResponses,
+		Meta:     meta,
+	}
+}
+
+func FromProjectsEntityForBulkToResponse(projects []*entities.Project, meta *shared.Meta) *ProjectListResponse {
+	if projects == nil {
+		return &ProjectListResponse{Meta: meta}
+	}
+
+	var projectResponses []*Project
+	for _, project := range projects {
+		projectResponses = append(projectResponses, &Project{
+			ID:               project.ProjectID,
+			UserID:           project.UserID,
+			Title:            project.Title,
+			Description:      project.Description,
+			ShortDescription: project.ShortDescription,
+			Technologies:     project.Technologies,
+			GithubURL:        project.GithubURL,
+			ImageURL:         project.ImageURL,
+			Status:           project.Status,
+			CreatedAt:        project.CreatedAt,
+			UpdatedAt:        project.UpdatedAt,
+		})
 	}
 
 	return &ProjectListResponse{

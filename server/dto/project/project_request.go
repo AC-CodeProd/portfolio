@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"portfolio/domain"
 	"portfolio/domain/entities"
 	"portfolio/domain/validation"
 	"strings"
@@ -111,6 +112,25 @@ func (r *CreateProjectRequest) Sanitize() {
 			r.ImageURL = trimmed
 		}
 	}
+}
+
+type CreateBulkProjectsRequest struct {
+	Projects []CreateProjectRequest `json:"projects" validate:"required"`
+} // @name CreateBulkProjectsRequest
+
+func (req *CreateBulkProjectsRequest) Validate() error {
+	if len(req.Projects) == 0 {
+		return domain.NewValidationError("At least one project is required", "projects", nil)
+	}
+	if len(req.Projects) > 50 {
+		return domain.NewValidationError("Cannot create more than 50 projects at once", "projects", nil)
+	}
+	for i := range req.Projects {
+		if err := req.Projects[i].Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type UpdateProjectRequest struct {

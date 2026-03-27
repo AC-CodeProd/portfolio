@@ -23,8 +23,9 @@ type Experience struct {
 
 // @Description Response for a list of experiences
 type ExperienceListResponse struct {
-	Experiences []*Experience `json:"experiences"`
-	Meta        *shared.Meta  `json:"meta"`
+	Experiences []*Experience      `json:"experiences"`
+	Meta        *shared.Meta       `json:"meta"`
+	Errors      []*shared.APIError `json:"errors,omitempty"`
 } //@name ExperienceListResponse
 
 // @Description Response for an experience
@@ -85,6 +86,38 @@ func FromExperiencesEntityToResponse(experiences []*entities.Experience, meta *s
 			_experience.EndDate = experience.EndDate.Format("2006-01-02")
 		}
 
+		experienceResponses = append(experienceResponses, _experience)
+	}
+
+	return &ExperienceListResponse{
+		Experiences: experienceResponses,
+		Meta:        meta,
+	}
+}
+
+func FromExperiencesEntityForBulkToResponse(experiences []*entities.Experience, meta *shared.Meta) *ExperienceListResponse {
+	if experiences == nil {
+		return nil
+	}
+
+	var experienceResponses []*Experience
+
+	for _, experience := range experiences {
+		_experience := &Experience{
+			ExperienceID:      experience.ExperienceID,
+			UserID:            experience.UserID,
+			JobTitle:          experience.JobTitle,
+			CompanyName:       experience.CompanyName,
+			StartDate:         experience.StartDate.Format("2006-01-02"),
+			Description:       experience.Description,
+			IsCurrentPosition: experience.IsCurrentPosition(),
+			DurationInMonths:  experience.GetDurationInMonths(),
+			CreatedAt:         experience.CreatedAt,
+			UpdatedAt:         experience.UpdatedAt,
+		}
+		if !experience.IsCurrentPosition() {
+			_experience.EndDate = experience.EndDate.Format("2006-01-02")
+		}
 		experienceResponses = append(experienceResponses, _experience)
 	}
 

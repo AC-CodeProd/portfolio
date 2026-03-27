@@ -19,8 +19,9 @@ type Education struct {
 
 // @Description Response for a list of educations
 type EducationListResponse struct {
-	Educations []*Education `json:"educations"`
-	Meta       *shared.Meta `json:"meta"`
+	Educations []*Education       `json:"educations"`
+	Meta       *shared.Meta       `json:"meta"`
+	Errors     []*shared.APIError `json:"errors,omitempty"`
 } //@name EducationListResponse
 
 // @Description Response for a education
@@ -58,6 +59,35 @@ func FromEducationEntityToResponse(education *entities.Education, meta *shared.M
 func FromEducationsEntityToResponse(educations []*entities.Education, meta *shared.Meta) *EducationListResponse {
 	if educations == nil {
 		return nil
+	}
+
+	var educationResponses []*Education
+	for _, education := range educations {
+		_education := &Education{
+			ID:          education.EducationID,
+			Degree:      education.Degree,
+			Institution: education.Institution,
+			StartDate:   education.StartDate.Format("01/2006"),
+			Description: education.Description,
+			CreatedAt:   education.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt:   education.UpdatedAt.Format("2006-01-02 15:04:05"),
+		}
+		if education.EndDate != nil && !education.EndDate.IsZero() {
+			endDate := education.EndDate.Format("01/2006")
+			_education.EndDate = &endDate
+		}
+		educationResponses = append(educationResponses, _education)
+	}
+
+	return &EducationListResponse{
+		Educations: educationResponses,
+		Meta:       meta,
+	}
+}
+
+func FromEducationsEntityForBulkToResponse(educations []*entities.Education, meta *shared.Meta) *EducationListResponse {
+	if educations == nil {
+		return &EducationListResponse{Meta: meta}
 	}
 
 	var educationResponses []*Education
