@@ -15,6 +15,37 @@ type CreateEducationRequest struct {
 	Description *string    `json:"description,omitempty"`
 } // @name CreateEducationRequest
 
+type CreateBulkEducationsRequest struct {
+	Educations []CreateEducationRequest `json:"educations" validate:"required"`
+} // @name CreateBulkEducationsRequest
+
+func (req *CreateBulkEducationsRequest) Validate() error {
+	if len(req.Educations) == 0 {
+		return domain.NewValidationError("At least one education is required", "educations", nil)
+	}
+	if len(req.Educations) > 50 {
+		return domain.NewValidationError("Cannot create more than 50 educations at once", "educations", nil)
+	}
+	for _, ed := range req.Educations {
+		if err := ed.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (req *CreateBulkEducationsRequest) ToEntities(userID int) ([]*entities.Education, error) {
+	educationEntities := make([]*entities.Education, 0, len(req.Educations))
+	for _, edReq := range req.Educations {
+		entity, err := edReq.ToEntity(userID)
+		if err != nil {
+			return nil, err
+		}
+		educationEntities = append(educationEntities, entity)
+	}
+	return educationEntities, nil
+}
+
 type UpdateEducationRequest struct {
 	ID          int        `json:"id" validate:"required"`
 	Degree      string     `json:"degree" validate:"required"`

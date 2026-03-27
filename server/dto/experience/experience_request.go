@@ -16,6 +16,36 @@ type CreateExperienceRequest struct {
 	Description string `json:"description"`
 } // @name CreateExperienceRequest
 
+// @Description Request to create multiple experiences in bulk
+type CreateBulkExperiencesRequest struct {
+	Experiences []CreateExperienceRequest `json:"experiences" validate:"required"`
+} // @name CreateBulkExperiencesRequest
+
+func (req *CreateBulkExperiencesRequest) Validate() error {
+	if len(req.Experiences) == 0 {
+		return domain.NewValidationError("At least one experience is required", "experiences", nil)
+	}
+
+	if len(req.Experiences) > 50 {
+		return domain.NewValidationError("Cannot create more than 50 experiences at once", "experiences", nil)
+	}
+
+	nameMap := make(map[string]bool)
+	for i, experience := range req.Experiences {
+		if err := experience.Validate(); err != nil {
+			return domain.NewValidationError("Experience "+string(rune(i+1))+": "+err.Error(), "experiences", &err)
+		}
+
+		normalizedName := strings.ToLower(strings.TrimSpace(experience.JobTitle))
+		if nameMap[normalizedName] {
+			return domain.NewAlreadyExistsError("experience", experience.JobTitle)
+		}
+		nameMap[normalizedName] = true
+	}
+
+	return nil
+}
+
 type UpdateExperienceRequest struct {
 	JobTitle    string `json:"job_title" validate:"required"`
 	CompanyName string `json:"company_name" validate:"required"`
@@ -147,6 +177,18 @@ func (req *CreateExperienceRequest) ToEntity(userID int) (*entities.Experience, 
 		EndDate:     endDate,
 		Description: strings.TrimSpace(req.Description),
 	}, nil
+}
+
+func (req *CreateBulkExperiencesRequest) ToEntities(userID int) ([]*entities.Experience, error) {
+	experienceEntities := make([]*entities.Experience, 0, len(req.Experiences))
+	for _, expReq := range req.Experiences {
+		entity, err := expReq.ToEntity(userID)
+		if err != nil {
+			return nil, err
+		}
+		experienceEntities = append(experienceEntities, entity)
+	}
+	return experienceEntities, nil
 }
 
 func (req *UpdateExperienceRequest) ToEntity(experienceID, userID int) (*entities.Experience, error) {

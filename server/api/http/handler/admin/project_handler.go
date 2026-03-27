@@ -6,6 +6,7 @@ import (
 	"portfolio/api/http/routes"
 	"portfolio/api/http/utils"
 	"portfolio/domain"
+	"portfolio/domain/entities"
 	"portfolio/domain/usecases"
 	projectDto "portfolio/dto/project"
 	"portfolio/logger"
@@ -37,6 +38,11 @@ func NewProjectHandler(settingUseCase *usecases.SettingUseCase, projectUseCase *
 			Name:    "PostAdminProjectHandler",
 			Pattern: "POST /projects",
 			Handler: projectHandler.CreateProject,
+		},
+		{
+			Name:    "PostBulkAdminProjectHandler",
+			Pattern: "POST /projects/bulk",
+			Handler: projectHandler.CreateBulkProjects,
 		},
 		{
 			Name:    "GetAdminProjectHandler",
@@ -198,6 +204,76 @@ func (ph *projectHandler) CreateProject(w http.ResponseWriter, r *http.Request) 
 		"request_id": utils.GetRequestIDFromContext(ctx),
 	})
 	utils.WriteSuccessResponse(w, http.StatusCreated, response)
+}
+
+// CreateBulkProjects
+//
+//	@Summary		Create multiple projects in bulk
+//	@Description	Create multiple projects for the authenticated admin user
+//	@Tags			Admin Projects
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.CreateBulkProjectsRequest	true	"Bulk projects creation request"
+//	@Success		201		{object}	shared.APIResponse{data=dto.ProjectListResponse}
+//	@Failure		400		{object}	shared.APIResponse{errors=[]shared.APIError}
+//	@Failure		401		{object}	shared.APIResponse{errors=[]shared.APIError}
+//	@Failure		500		{object}	shared.APIResponse{errors=[]shared.APIError}
+//	@Router			/admin/projects/bulk [post]
+//	@Security		BearerAuth
+func (ph *projectHandler) CreateBulkProjects(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	var request projectDto.CreateBulkProjectsRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		ph.logger.Error("Failed to decode bulk projects request body: %v", err)
+		utils.WriteErrorResponse(w, domain.NewValidationError("Invalid request body", "body", &err))
+		return
+	}
+
+	if err := request.Validate(); err != nil {
+		utils.WriteErrorResponse(w, domain.NewValidationError("request", err.Error(), nil))
+		return
+	}
+
+	userID, ok := ph.getUserIDFromContext(w, r)
+	if !ok {
+		return
+	}
+
+	var createdProjects []*entities.Project
+	var errs []error
+
+	for i := range request.Projects {
+		createdProject, err := ph.projectUseCase.CreateProject(ctx, userID, &request.Projects[i])
+		if err != nil {
+			ph.logger.Error("Failed to create project at index %d (title: %s): %v", i, request.Projects[i].Title, err)
+			errs = append(errs, err)
+		} else {
+			createdProjects = append(createdProjects, createdProject)
+		}
+	}
+
+	statusCode := http.StatusCreated
+	if len(request.Projects) == len(errs) {
+		ph.logger.Error("All projects failed to create, returning errors")
+		utils.WriteErrorResponse(w, errs...)
+		return
+	} else if len(errs) > 0 {
+		statusCode = http.StatusMultiStatus
+	}
+
+	response := projectDto.FromProjectsEntityForBulkToResponse(createdProjects, &shared.Meta{
+		"timestamp":  time.Now().Format(time.RFC3339),
+		"request_id": utils.GetRequestIDFromContext(ctx),
+	})
+
+	domainErrors := make([]*shared.APIError, len(errs))
+	for i, err := range errs {
+		if domainErr, ok := domain.AsDomainError(err); ok {
+			domainErrors[i] = utils.DomainErrorToAPIError(domainErr)
+		}
+	}
+	response.Errors = domainErrors
+	utils.WriteSuccessResponse(w, statusCode, response)
 }
 
 // UpdateProject
